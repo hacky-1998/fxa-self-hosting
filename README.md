@@ -150,7 +150,7 @@ folder under /etc/letsencrypt if the registration was successful:
 
 ````bash
 cd /root
-cp -r /etc/letsencrypt/live/fxa.michielbdejong.com ./fxa-cert
+cp -r /etc/letsencrypt/live/accounts.hack-it.co ./fxa-cert
 chmod -R ugo+r ./fxa-cert
 cat ./fxa-cert/cert.pem ./fxa-cert/chain.pem > ./fxa-cert/combined.pem
 ````
@@ -159,7 +159,7 @@ cat ./fxa-cert/cert.pem ./fxa-cert/chain.pem > ./fxa-cert/combined.pem
 
 Replace 'secretsecretsecret' with the secret from your ~/.pagekite.rc file in the
 following command, and run it on the pagekite frontend (the server to which DNS
-for fxa.michielbdejong.com points):
+for accounts.hack-it.co points):
 
 ````bash
 pagekite.py --isfrontend --domain *:fxa.michielbdejong.com:secretsecretsecret --ports=80,1111,3030,5000,8000,443,9010
@@ -174,7 +174,7 @@ regularly, for instance when a new patch version of node 0.10 becomes available.
 
 ### Step 4: Run setup.sh
 
-Running `setup.sh fxa.michielbdejong.com` (script in the root of this repo) will
+Running `setup.sh accounts.hack-it.co` (script in the root of this repo) will
 stop and destroy all running Docker containers, so don't run it on a server
 where you're also running some other Docker-based things. Make sure to run it with
 your own sub-domain instead of 'fxa.michielbdejong.com', of course. You may also
@@ -193,9 +193,9 @@ On MacOS, Docker runs inside a virtual machine, probably on 192.168.99.100. In
 any case, you can use your browser or a http tool like curl to test if https://192.168.99.100
 is responding.
 
-Run `fly.sh fxa.michielbdejong.com` from this repo, and maybe restart the pagekite
+Run `fly.sh accounts.hack-it.co` from this repo, and maybe restart the pagekite
 frontend and backend (killing all pagekite processes from `ps auxwww | grep pagekite`
-in between) until there are no rejected duplicates and https://fxa.michielbdejong.com
+in between) until there are no rejected duplicates and https://accounts.hack-it.co
 looks the same as https://192.186.99.100 (or whatever your Docker VM IP), and same for
 the https services on ports :1111, :3030, :5000, :8000, and :9010.
 
@@ -205,8 +205,8 @@ Looking for a proper way to do this through env vars; until then:
 
 ````bash
 docker exec -it -u root content /bin/bash
-root@1e1dbee9b940:/home/fxa/fxa-content-server# apt-get update && apt-get install -yq vim
-root@1e1dbee9b940:/home/fxa/fxa-content-server# vim ./server/config/local.json +9
+root@1e1dbee9b940:/home/fxa/fxa-content-server# apt-get update && apt-get install -yq nano
+root@1e1dbee9b940:/home/fxa/fxa-content-server# nano ./server/config/local.json +9
 -> change "YOU MUST CHANGE ME" to some random string (e.g. `pwgen 40 1`)
 root@1e1dbee9b940:/home/fxa/fxa-content-server# exit
 ````
@@ -224,8 +224,8 @@ Looking for a proper way to do this through env vars; until then:
 
 ````bash
 docker exec -it -u root sync /bin/bash
-root@b5c1ba63de07:/home/app/syncserver# apt-get update && apt-get install -yq vim
-root@b5c1ba63de07:/home/app/syncserver# vim ./local/lib/python2.7/site-packages/tokenserver/verifiers.py +85
+root@b5c1ba63de07:/home/app/syncserver# apt-get update && apt-get install -yq nano
+root@b5c1ba63de07:/home/app/syncserver# nano ./local/lib/python2.7/site-packages/tokenserver/verifiers.py +85
 -> edit verifier_url = "http://verifier.local:5050/v2"
 root@b5c1ba63de07:/home/app/syncserver# exit
 ````
@@ -239,7 +239,7 @@ docker restart sync ; docker restart proxy
 
 ### Step 8: Creating your account
 
-Sign up on https://fxa.michielbdejong.com:3030/, and instead of going to look
+Sign up on https://accounts.hack-it.co:3030/, and instead of going to look
 for the verification email, run:
 
 ````bash
@@ -248,7 +248,7 @@ docker exec -it httpdb mysql -e "USE fxa; UPDATE accounts SET emailVerified=1;"
 
 to mark your email address as verified.
 
-NB: If you get https://fxa.michielbdejong.com:3030/unexpected_error, run
+NB: If you get https://accounts.hack-it.co:3030/unexpected_error, run
 localStorage.clear() in the console and hard-refresh.
 
 ### Step 9: Configure Firefox Desktop
@@ -261,21 +261,21 @@ Edit the values in about:config like so:
 
 In build/config/common-settings.json, edit:
 
-* "identity.fxaccounts.reset-password.url": "https://fxa.michielbdejong.com:3030/reset_password",
-* "sync.fxa.audience": "https://fxa.michielbdejong.com:5000/",
-* "sync.server.url": "https://fxa.michielbdejong.com:8000/v1/",
+* "identity.fxaccounts.reset-password.url": "https://accounts.hack-it.co:3030/reset_password",
+* "sync.fxa.audience": "https://accounts.hack-it.co:5000/",
+* "sync.server.url": "https://accounts.hack-it.co:8000/v1/",
 
 And in build/config/phone/custom-prefs.js (assuming you're building for the phone), add:
 
-* user_pref("identity.fxaccounts.auth.uri", "https://fxa.michielbdejong.com/v1");
+* user_pref("identity.fxaccounts.auth.uri", "https://accounts.hack-it.co/v1");
 
 
 There are also two prefs you need to change at the B2G level, but if you're using B2G-Desktop,
 you can change it in the /Applications/B2GDebug.app/Contents/Resources/defaults/pref/b2g.js
 file without having to rebuild all of B2G. The prefs to change are:
 
-* pref("identity.fxaccounts.remote.oauth.uri", "https://fxa.michielbdejong.com:9010/v1");
-* pref("identity.fxaccounts.remote.profile.uri", "https://fxa.michielbdejong.com:1111/v1");
+* pref("identity.fxaccounts.remote.oauth.uri", "https://accounts.hack-it.co:9010/v1");
+* pref("identity.fxaccounts.remote.profile.uri", "https://accounts.hack-it.co:1111/v1");
 
 ## Debugging
 
@@ -312,8 +312,8 @@ syncclient's readme instructions, make sure to edit `syncclient/client.py` like 
 ````diff
 -TOKENSERVER_URL = "https://token.services.mozilla.com/"
 -FXA_SERVER_URL = "https://api.accounts.firefox.com"
-+TOKENSERVER_URL = "https://fxa.michielbdejong.com:5000/token/"
-+FXA_SERVER_URL = "https://fxa.michielbdejong.com"
++TOKENSERVER_URL = "https://accounts.hack-it.co:5000/token/"
++FXA_SERVER_URL = "https://accounts.hack-it.co.com"
 ````
 
 And then try running commands like
